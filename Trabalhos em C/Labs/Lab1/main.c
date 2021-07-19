@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include<pthread.h>
 #define NTHREADS 2
-#define TAMANHOVET 100
+#define TAMANHOVET 10000
 
 int vetor[TAMANHOVET];
 
@@ -10,6 +10,17 @@ struct inicioEfim{
   int inicio;
   int fim;
 };
+
+int testeAoQuadrado(int vetEntrada[]){
+  int cont = 0;
+  for(int i=0;i<TAMANHOVET; i++){    
+    if(vetor[i] == vetEntrada[i]*vetEntrada[i])
+      cont++;
+  }
+  if(cont == TAMANHOVET)
+    return 1;
+  return 0;
+}
 
 void * tarefa(void * arg){
   struct inicioEfim func = *(struct inicioEfim *) arg;
@@ -22,19 +33,18 @@ void * tarefa(void * arg){
 int main(){
   pthread_t tid[NTHREADS];
   int funcs[NTHREADS];
+  int vetCopia[TAMANHOVET];
 
   struct inicioEfim t1 = {.inicio = 1,.fim = TAMANHOVET/2};
 
   struct inicioEfim t2 = {.inicio = TAMANHOVET/2,.fim = TAMANHOVET};
 
   int i = 0;
-  for(i = 0; i < NTHREADS; i++){
-    funcs[i] = i+1;
-  }
 
   //inicializando o vetor que será elevado
   for(i = 0; i < TAMANHOVET;i++){
     vetor[i] = i+1;
+    vetCopia[i] = i+1;
   }
   
   if(pthread_create(&tid[0], NULL, tarefa, (void*)&t1)){
@@ -50,12 +60,10 @@ int main(){
       printf("ERRO... pthread_join");
     }
   }
-
-  //imprimo o vetor para verificação
-  for(i = 0; i < TAMANHOVET; i++){
-    printf("%d ", vetor[i]);
-  }
-  printf("\n");
+  
+  if(testeAoQuadrado(vetCopia))
+    printf("tudo certo pessoal\n");
+  
   pthread_exit(NULL);
   return 0;
 
